@@ -8,23 +8,26 @@ var app = express();
 
 // Boda Parser
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 
 // Importar rutas
 var appRoutes = require('./routes/app');
 var userRoutes = require('./routes/user');
 var logingRoutes = require('./routes/login');
+var hospitalRoutes = require('./routes/hospital');
+var doctorRoutes = require('./routes/doctor');
 
 
 // Rutas
 app.use('/', appRoutes);
 app.use('/user', userRoutes);
 app.use('/login', logingRoutes);
-
+app.use('/hospital', hospitalRoutes);
+app.use('/doctor', doctorRoutes);
 
 // Conexión a la base de datos
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) => {

@@ -15,12 +15,12 @@ exports.tokenVerification = function(req, res, next) {
                 errors: err
             });
         }
+        decoded.user.password = ":D";
+        req.user = decoded.user;
 
-        // next();
-        res.status(200).json({
-            ok: true,
-            decoded: decoded
-        });
+
+        next();
+
     });
 
 }

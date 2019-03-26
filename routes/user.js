@@ -13,20 +13,46 @@ var app = express();
 
 
 app.get('/', (req, res, next) => {
-    User.find({}, 'name email img role').exec((err, users) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                msg: 'Error cargando usuarios',
-                errors: err
-            });
-        }
-        res.status(200).json({
-            ok: true,
-            users: users,
-            userSession: req.user
+
+    var from = req.query.from || 0;
+    try { from = Number(from); } catch (exception) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'El parámetro enviado para la paginación debe ser numérico',
+            errors: exception
         });
-    });
+    }
+
+
+    User.find({}, 'name email img role')
+        .skip(from)
+        .limit(5)
+        .exec((err, users) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    msg: 'Error cargando usuarios',
+                    errors: err
+                });
+            }
+            User.count({}, (err, count) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        msg: 'Error al contar los usuarios',
+                        errors: err
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    users: users,
+                    userSession: req.user,
+                    total: count
+                });
+            });
+        });
 
 
 });

@@ -12,20 +12,46 @@ var app = express();
 
 
 app.get('/', (req, res, next) => {
-    Hospital.find({}).exec((err, hospitals) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                msg: 'Error cargando los hospitales',
-                errors: err
-            });
-        }
-        res.status(200).json({
-            ok: true,
-            hospitals: hospitals,
-            userSession: req.user
+
+    var from = req.query.from || 0;
+    try { from = Number(from); } catch (exception) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'El parámetro enviado para la paginación debe ser numérico',
+            errors: exception
         });
-    });
+    }
+
+    Hospital.find({})
+        .skip(from)
+        .limit(5)
+        .populate('user', 'name email')
+        .exec((err, hospitals) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    msg: 'Error cargando los hospitales',
+                    errors: err
+                });
+            }
+            Hospital.count({}, (err, count) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        msg: 'Error al contar los hospitales',
+                        errors: err
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    hospitals: hospitals,
+                    userSession: req.user,
+                    total: count
+                });
+            });
+        });
 
 
 });
@@ -45,7 +71,7 @@ app.post('/', mdAuth.tokenVerification, (req, res) => {
     var hospital = new Hospital({
         name: body.name,
         img: body.img,
-        user: body.user
+        user: req.user._id
     });
 
     hospital.save((err, hospitalSaved) => {
@@ -100,7 +126,7 @@ app.put('/:id', mdAuth.tokenVerification, (req, res) => {
 
 
         hospitalFound.name = body.name;
-        // hospitalFound.user = body.user;
+        hospitalFound.user = req.user._id;
         // hospitalFound.img = body.img;
 
         hospitalFound.save((err, hospitalSaved) => {

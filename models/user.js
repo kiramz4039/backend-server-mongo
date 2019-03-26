@@ -20,4 +20,4 @@ var userSchema = new Schema({
 
 userSchema.plugin(uniqueValidator, { message: '{PATH} ya está en uso' });
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);

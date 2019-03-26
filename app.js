@@ -20,14 +20,20 @@ var userRoutes = require('./routes/user');
 var logingRoutes = require('./routes/login');
 var hospitalRoutes = require('./routes/hospital');
 var doctorRoutes = require('./routes/doctor');
+var searchRoutes = require('./routes/search');
+var uploadRoutes = require('./routes/upload');
+var imageRoutes = require('./routes/images');
 
 
 // Rutas
-app.use('/', appRoutes);
 app.use('/user', userRoutes);
 app.use('/login', logingRoutes);
 app.use('/hospital', hospitalRoutes);
 app.use('/doctor', doctorRoutes);
+app.use('/search', searchRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/image', imageRoutes);
+app.use('/', appRoutes); //siempre debe ir de ultima sino entrará siempre por esta ruta
 
 // Conexión a la base de datos
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) => {

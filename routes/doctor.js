@@ -11,21 +11,50 @@ var app = express();
 // Obtener todos los doctores
 // ===================================================================
 app.get('/', (req, res, next) => {
-    Doctor.find({}).exec((err, doctors) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                msg: 'Error al cargar los médicos',
-                errors: err
-            });
-        }
 
-        res.status(200).json({
-            ok: true,
-            doctors: doctors,
-            userSession: req.user
+    var from = req.query.from || 0;
+    try { from = Number(from); } catch (exception) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'El parámetro enviado para la paginación debe ser numérico',
+            errors: exception
         });
-    });
+    }
+
+    Doctor.find({})
+        .skip(from)
+        .limit(5)
+        .populate('user', 'name email')
+        .populate('hospital')
+        .exec((err, doctors) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    msg: 'Error al cargar los médicos',
+                    errors: err
+                });
+            }
+
+            Doctor.count({}, (err, count) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        msg: 'Error al contar los médicos',
+                        errors: err
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    dctors: doctors,
+                    userSession: req.user,
+                    total: count
+                });
+            });
+
+
+        });
 });
 
 // ===================================================================
@@ -40,7 +69,7 @@ app.post('/', mdAuth.tokenVerification, (req, res) => {
     var doctor = new Doctor({
         name: body.name,
         img: body.img,
-        user: body.user,
+        user: req.user._id,
         hospital: body.hospital
     });
 
@@ -90,7 +119,7 @@ app.put('/:id', mdAuth.tokenVerification, (req, res) => {
         }
 
         doctorFound.name = body.name;
-        doctorFound.user = body.user;
+        doctorFound.user = req.user._id;
         doctorFound.hospital = body.hospital;
 
         doctorFound.save((err, doctorSaved) => {

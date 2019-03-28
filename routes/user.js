@@ -66,7 +66,7 @@ app.get('/', (req, res, next) => {
 
 // x-www-form-urlencoded postman post
 
-app.post('/', mdAuth.tokenVerification, (req, res) => {
+app.post('/', (req, res) => {
 
     var body = req.body;
 

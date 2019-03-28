@@ -67,6 +67,7 @@ app.post('/google', async(req, res) => {
                     errors: err
                 });
             } else {
+                var token = jwt.sign({ user: userDB }, SEED, { expiresIn: 14400 }); // 4 horas
                 res.status(200).json({
                     ok: true,
                     user: userDB,

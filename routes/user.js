@@ -130,8 +130,10 @@ app.put('/:id', mdAuth.tokenVerification, (req, res) => {
 
 
         userFound.name = body.name;
-        userFound.email = body.email;
         userFound.role = body.role;
+        if (!userFound) {
+            userFound.email = body.email;
+        }
 
         userFound.save((err, userSaved) => {
             if (err) {

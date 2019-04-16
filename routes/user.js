@@ -24,7 +24,7 @@ app.get('/', (req, res, next) => {
     }
 
 
-    User.find({}, 'name email img role')
+    User.find({}, 'name email img role google')
         .skip(from)
         .limit(5)
         .exec((err, users) => {
